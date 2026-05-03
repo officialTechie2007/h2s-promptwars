@@ -1,53 +1,23 @@
-const GEMINI_MODEL = "gemini-2.5-flash";
+const {
+  normalizePrompt,
+  buildAssistantPrompt,
+  buildAnswerPayload,
+  createSecurityHeaders,
+  createCorsHeaders,
+  applyRateLimit,
+  getClientIdentifier
+} = require("../app-core");
+const { askGeminiWithKey, fetchGoogleCivicContext } = require("../gemini-service");
 
-async function askGemini(prompt) {
-  const apiKey = process.env.GEMINI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("Missing GEMINI_API_KEY. Add it to your Vercel project or local environment.");
-  }
-
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
-  const geminiResponse = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: prompt }]
-        }
-      ]
-    })
-  });
-
-  const data = await geminiResponse.json();
-
-  if (!geminiResponse.ok) {
-    const message =
-      data?.error?.message || "Gemini request failed. Please check the server-side environment variable.";
-    throw new Error(message);
-  }
-
-  const text = (data?.candidates || [])
-    .flatMap((candidate) => candidate?.content?.parts || [])
-    .map((part) => part?.text || "")
-    .join("\n")
-    .trim();
-
-  if (!text) {
-    throw new Error("Gemini returned an empty response.");
-  }
-
-  return text;
-}
+const rateLimitStore = new Map();
 
 module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+  Object.entries({
+    ...createSecurityHeaders(),
+    ...createCorsHeaders(req.headers.origin || "")
+  }).forEach(([header, value]) => {
+    res.setHeader(header, value);
+  });
 
   if (req.method === "OPTIONS") {
     return res.status(204).end();
@@ -58,17 +28,26 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const prompt = req.body?.prompt?.trim();
-
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required." });
+    if (req.headers["content-type"] && !req.headers["content-type"].includes("application/json")) {
+      return res.status(415).json({ error: "Content-Type must be application/json." });
     }
 
-    const answer = await askGemini(prompt);
+    const rateLimit = applyRateLimit(rateLimitStore, getClientIdentifier(req));
+    if (!rateLimit.allowed) {
+      res.setHeader("Retry-After", String(rateLimit.retryAfterSeconds));
+      return res.status(429).json({ error: "Too many requests. Please try again shortly." });
+    }
 
-    return res.status(200).json({
-      steps: [{ title: "AI Answer", content: answer }]
-    });
+    const normalized = normalizePrompt(req.body?.prompt);
+    if (!normalized.ok) {
+      return res.status(normalized.statusCode).json({ error: normalized.error });
+    }
+
+    const question = normalized.prompt;
+    const answer = await askGeminiWithKey(process.env.GEMINI_API_KEY, buildAssistantPrompt(question));
+    const civicContext = await fetchGoogleCivicContext(question);
+
+    return res.status(200).json(buildAnswerPayload(question, answer, { civicContext }));
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown server error.";
     return res.status(500).json({ error: message });

@@ -205,6 +205,43 @@ document.addEventListener('DOMContentLoaded', () => {
         scrollToBottom();
     }
 
+    function appendSources(sources) {
+        if (!Array.isArray(sources) || sources.length === 0) return;
+
+        const sourceBlock = document.createElement('div');
+        sourceBlock.className = 'assistant-sources';
+        sourceBlock.innerHTML = `
+            <p class="assistant-sources-title">Official sources</p>
+            <div class="assistant-sources-list">
+                ${sources.map((source) => `
+                    <a class="assistant-source-link" href="${source.url}" target="_blank" rel="noopener noreferrer">
+                        ${source.label}
+                    </a>
+                `).join('')}
+            </div>
+        `;
+
+        chatMessagesContainer.appendChild(sourceBlock);
+        scrollToBottom();
+    }
+
+    function appendCivicContext(civicContext) {
+        if (!civicContext?.pollingLocation?.address) return;
+
+        const infoBlock = document.createElement('div');
+        infoBlock.className = 'assistant-civic-context';
+        infoBlock.innerHTML = `
+            <p class="assistant-sources-title">${civicContext.source}</p>
+            <div class="assistant-civic-card">
+                <strong>${civicContext.electionName || 'Election context'}</strong>
+                <p>${civicContext.pollingLocation.address}</p>
+            </div>
+        `;
+
+        chatMessagesContainer.appendChild(infoBlock);
+        scrollToBottom();
+    }
+
     // Add Loading Indicator
     function appendLoading() {
         const msgDiv = document.createElement('div');
@@ -246,6 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             loadingMsg.remove();
             appendMessage('assistant', aiText);
+            appendSources(data.sources);
+            appendCivicContext(data.civicContext);
             
             // Append source
             const sourceDiv = document.createElement('div');

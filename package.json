@@ -2,9 +2,10 @@
   "name": "voteflow",
   "version": "1.0.0",
   "private": true,
-  "description": "Single-root JavaScript version of the VoteFlow civic assistant.",
+  "description": "Single-root JavaScript version of the CivicPath civic assistant.",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test"
   }
 }

@@ -820,6 +820,63 @@ tr:hover td {
   border-top-left-radius: 0.125rem;
 }
 
+.assistant-sources,
+.assistant-civic-context {
+  margin-left: 44px;
+  margin-top: -10px;
+  margin-bottom: 0.35rem;
+}
+
+.assistant-sources-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--slate-500);
+  margin-bottom: 0.45rem;
+}
+
+.assistant-sources-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.assistant-source-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-color);
+  color: var(--primary-600);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.assistant-source-link:hover {
+  border-color: var(--primary-300);
+}
+
+.assistant-civic-card {
+  padding: 0.85rem 1rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-color);
+  border-radius: 0.9rem;
+  color: var(--slate-700);
+}
+
+.assistant-civic-card strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--slate-800);
+}
+
+.assistant-civic-card p {
+  line-height: 1.5;
+}
+
 /* Animations */
 .animate-in {
   animation: fade-in 0.5s ease-out, slide-up 0.5s ease-out;
