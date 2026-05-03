@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicPath - Election Navigator</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- SVG Icons inline since we can't easily use Lucide React -->
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M7 6.5h10"/>
+                    <path d="M8.5 3.5h7l3 3v9.5a2 2 0 0 1-2 2h-9A4.5 4.5 0 0 1 3 13.5v-5a5 5 0 0 1 5.5-5Z"/>
+                    <path d="m9.2 11.8 1.8 1.8 3.8-3.8"/>
+                    <path d="M8 20.5h8"/>
+                </svg>
+            </div>
+            <div class="logo-copy">
+                <span class="logo-text">CivicPath</span>
+                <span class="logo-subtext">Election Navigator</span>
+            </div>
+        </div>
+
+        <div class="nav-menu">
+            <div class="text-xs font-semibold text-slate-400" style="text-transform: uppercase; margin-bottom: 1rem; padding: 0 0.75rem; letter-spacing: 0.05em;">Menu</div>
+            
+            <button class="nav-item active" data-target="dashboard-view">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+                Dashboard
+            </button>
+            <button class="nav-item" data-target="journey-view">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                Journey
+            </button>
+            <button class="nav-item" data-target="assistant-view">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                Assistant
+            </button>
+            <button class="nav-item" data-target="sources-view">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                Sources
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div style="position: relative;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--slate-400);"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" class="search-input" placeholder="Search election resources..." style="padding-left: 2.5rem;">
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to night mode" aria-pressed="false">
+                    <span class="theme-toggle-icon theme-toggle-sun" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                    </span>
+                    <span class="theme-toggle-icon theme-toggle-moon" aria-hidden="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 1 0 9 9 9 9 0 1 1-9-9"/></svg>
+                    </span>
+                    <span class="theme-toggle-label">Night mode</span>
+                </button>
+                <button class="btn-primary" id="topbar-assistant-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.2 1.2L3 12l5.8 1.9a2 2 0 0 1 1.2 1.2L12 21l1.9-5.8a2 2 0 0 1 1.2-1.2L21 12l-5.8-1.9a2 2 0 0 1-1.2-1.2Z"/></svg>
+                    Get AI Insight
+                </button>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="content-area">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view animate-in">
+                <div style="margin-bottom: 2rem;">
+                    <h1 class="text-2xl">Dashboard Overview</h1>
+                    <p class="text-slate-500" style="margin-top: 0.25rem;">Welcome back, Voter!</p>
+                </div>
+
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-4 gap-4" style="margin-bottom: 2rem;">
+                    <div class="card hoverable stat-border-green" style="padding: 1.25rem;">
+                        <div class="flex justify-between items-start" style="margin-bottom: 1rem;">
+                            <div class="icon-box" style="background-color: var(--primary-100); color: var(--primary-600);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 mb-1">Days to Election</p>
+                                <p class="text-xs text-slate-400">↓ Counting down</p>
+                            </div>
+                            <span class="text-3xl font-extrabold text-slate-800">9</span>
+                        </div>
+                    </div>
+
+                    <div class="card hoverable stat-border-teal" style="padding: 1.25rem;">
+                        <div class="flex justify-between items-start" style="margin-bottom: 1rem;">
+                            <div class="icon-box" style="background-color: var(--teal-100); color: var(--teal-600);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                            </div>
+                            <span class="badge badge-success">Active</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 mb-1">Registration</p>
+                                <p class="text-xs text-slate-400">Verified</p>
+                            </div>
+                            <span class="text-3xl font-extrabold text-slate-800">✓</span>
+                        </div>
+                    </div>
+
+                    <div class="card hoverable stat-border-purple" style="padding: 1.25rem;">
+                        <div class="flex justify-between items-start" style="margin-bottom: 1rem;">
+                            <div class="icon-box" style="background-color: var(--purple-100); color: var(--purple-600);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 mb-1">Journey Progress</p>
+                                <p class="text-xs text-slate-400">Steps done</p>
+                            </div>
+                            <span class="text-3xl font-extrabold text-slate-800">3/5</span>
+                        </div>
+                    </div>
+
+                    <div class="card hoverable stat-border-red" style="padding: 1.25rem;">
+                        <div class="flex justify-between items-start" style="margin-bottom: 1rem;">
+                            <div class="icon-box" style="background-color: var(--red-100); color: var(--red-600);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                            </div>
+                            <span class="badge badge-danger">Action Required</span>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 mb-1">Pending Actions</p>
+                            </div>
+                            <span class="text-3xl font-extrabold text-slate-800">2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ask CivicPath -->
+                <div style="margin-bottom: 2rem;">
+                    <h2 class="text-lg" style="margin-bottom: 0.75rem;">Ask CivicPath</h2>
+                    <div class="card ask-bar-container">
+                        <div style="background-color: transparent; padding: 1rem;">
+                            <div class="ask-input-group">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.2 1.2L3 12l5.8 1.9a2 2 0 0 1 1.2 1.2L12 21l1.9-5.8a2 2 0 0 1 1.2-1.2L21 12l-5.8-1.9a2 2 0 0 1-1.2-1.2Z"/></svg>
+                                <input type="text" id="dashboard-ask-input" class="ask-input" placeholder="Ask me anything about elections, documents, or voting...">
+                                <button id="dashboard-ask-btn" style="background: none; border: none; cursor: pointer; color: var(--slate-400); padding: 0.25rem;">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                                </button>
+                            </div>
+                            <div class="flex gap-2" style="margin-top: 0.75rem; flex-wrap: wrap;">
+                                <button class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> How to register?</button>
+                                <button class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg> Documents needed</button>
+                                <button class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> Find my booth</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div style="margin-bottom: 2rem;">
+                    <h2 class="text-lg" style="margin-bottom: 0.75rem;">Quick Actions</h2>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="card hoverable" style="padding: 1.25rem; cursor: pointer;" onclick="document.querySelector('[data-target=\'assistant-view\']').click()">
+                            <div class="flex items-center gap-4">
+                                <div class="icon-box" style="background-color: var(--primary-100); color: var(--primary-600);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold">Ask Civic Assistant</p>
+                                    <p class="text-xs text-slate-500">Get AI-powered answers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card hoverable" style="padding: 1.25rem; cursor: pointer;" onclick="window.open('https://voters.eci.gov.in/', '_blank')">
+                            <div class="flex items-center gap-4">
+                                <div class="icon-box" style="background-color: var(--teal-100); color: var(--teal-600);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold">Check Registration</p>
+                                    <p class="text-xs text-slate-500">Verify your voter status</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checklist Table -->
+                <div>
+                    <div class="flex justify-between items-center" style="margin-bottom: 0.75rem;">
+                        <h2 class="text-lg">Election Checklist</h2>
+                    </div>
+                    <div class="card table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Step</th>
+                                    <th>Task</th>
+                                    <th>Deadline</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">#STEP-01</td>
+                                    <td>Voter Registration & Verification</td>
+                                    <td class="text-slate-500">Apr 15, 2026</td>
+                                    <td><span class="badge badge-success">Completed</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">#STEP-02</td>
+                                    <td>Candidate & Manifesto Review</td>
+                                    <td class="text-slate-500">May 10, 2026</td>
+                                    <td><span class="badge badge-warning">In Progress</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="font-medium">#STEP-03</td>
+                                    <td>Locate Polling Booth</td>
+                                    <td class="text-slate-500">May 11, 2026</td>
+                                    <td><span class="badge badge-default">Upcoming</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assistant View -->
+            <div id="assistant-view" class="view hidden animate-in chat-container">
+                <div style="margin-bottom: 1.5rem;" class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl flex items-center gap-2">
+                            Civic Assistant
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.2 1.2L3 12l5.8 1.9a2 2 0 0 1 1.2 1.2L12 21l1.9-5.8a2 2 0 0 1 1.2-1.2L21 12l-5.8-1.9a2 2 0 0 1-1.2-1.2Z"/></svg>
+                        </h1>
+                        <p class="text-slate-500" style="margin-top: 0.25rem;">Your AI guide to the Indian election process.</p>
+                    </div>
+                    <span class="badge badge-success">Powered by Gemini</span>
+                </div>
+
+                <div class="card flex-1 flex flex-col overflow-hidden">
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Initial Message -->
+                        <div class="message assistant">
+                            <div class="icon-box" style="background-color: var(--primary-500); color: white; border-radius: 50%; width: 32px; height: 32px; flex-shrink: 0;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                            </div>
+                            <div class="message-bubble">
+                                Welcome to CivicPath Assistant! I can help guide you through the election process. Ask me anything about voter registration, documents, polling booths, or the voting procedure.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="flex gap-2" style="margin-bottom: 0.75rem; overflow-x: auto;" id="assistant-chips">
+                            <button class="chip">How do I register?</button>
+                            <button class="chip">Documents needed</button>
+                            <button class="chip">When is voting day?</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="chat-input" class="ask-input" style="background: var(--slate-50); border: 1px solid var(--border-color); padding: 0.75rem 1rem; border-radius: 0.75rem; flex: 1;" placeholder="Ask me anything about voting in India...">
+                            <button id="chat-send-btn" class="btn-primary" style="padding: 0 1rem;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journey View -->
+            <div id="journey-view" class="view hidden animate-in">
+                <div class="page-header">
+                    <div>
+                        <h1 class="text-2xl">Voter Journey</h1>
+                        <p class="text-slate-500 page-subtitle">A practical step-by-step path from registration to voting day.</p>
+                    </div>
+                    <span class="badge badge-success">5-Step Plan</span>
+                </div>
+
+                <div class="journey-hero card">
+                    <div>
+                        <p class="journey-eyebrow">Stay election-ready</p>
+                        <h2 class="journey-title">Move from “am I ready?” to “I know exactly what to do next.”</h2>
+                        <p class="journey-copy">Use this flow to confirm your registration, prepare documents, review candidates, find your polling station, and show up confident on voting day.</p>
+                    </div>
+                    <div class="journey-progress-panel">
+                        <p class="text-xs font-semibold text-slate-500">Current Progress</p>
+                        <div class="journey-progress-track">
+                            <span class="journey-progress-fill"></span>
+                        </div>
+                        <p class="text-sm font-semibold">3 of 5 checkpoints completed</p>
+                    </div>
+                </div>
+
+                <div class="journey-grid">
+                    <article class="card journey-step completed">
+                        <div class="journey-step-header">
+                            <span class="journey-step-number">01</span>
+                            <span class="badge badge-success">Done</span>
+                        </div>
+                        <h3>Register or verify your name</h3>
+                        <p>Check that your name appears correctly in the electoral roll and confirm your constituency details.</p>
+                        <div class="journey-step-meta">
+                            <span>Use EPIC or personal details</span>
+                            <span>Official voter portal</span>
+                        </div>
+                    </article>
+
+                    <article class="card journey-step completed">
+                        <div class="journey-step-header">
+                            <span class="journey-step-number">02</span>
+                            <span class="badge badge-success">Done</span>
+                        </div>
+                        <h3>Prepare your voter documents</h3>
+                        <p>Keep your EPIC details handy and verify what ID documents are accepted at the polling station if needed.</p>
+                        <div class="journey-step-meta">
+                            <span>Document checklist</span>
+                            <span>Identity confirmation</span>
+                        </div>
+                    </article>
+
+                    <article class="card journey-step active">
+                        <div class="journey-step-header">
+                            <span class="journey-step-number">03</span>
+                            <span class="badge badge-warning">In Progress</span>
+                        </div>
+                        <h3>Review candidates and election details</h3>
+                        <p>Look up candidate information, official announcements, and polling updates before voting day.</p>
+                        <div class="journey-step-meta">
+                            <span>Candidate research</span>
+                            <span>Election notices</span>
+                        </div>
+                    </article>
+
+                    <article class="card journey-step upcoming">
+                        <div class="journey-step-header">
+                            <span class="journey-step-number">04</span>
+                            <span class="badge badge-default">Upcoming</span>
+                        </div>
+                        <h3>Locate your polling booth</h3>
+                        <p>Confirm your polling station address in advance so you avoid confusion on election day.</p>
+                        <div class="journey-step-meta">
+                            <span>Booth location</span>
+                            <span>Constituency map</span>
+                        </div>
+                    </article>
+
+                    <article class="card journey-step upcoming">
+                        <div class="journey-step-header">
+                            <span class="journey-step-number">05</span>
+                            <span class="badge badge-default">Upcoming</span>
+                        </div>
+                        <h3>Vote with confidence</h3>
+                        <p>Carry the right details, arrive on time, and follow official instructions at the polling station.</p>
+                        <div class="journey-step-meta">
+                            <span>Final reminders</span>
+                            <span>Polling day readiness</span>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="journey-bottom-grid">
+                    <section class="card journey-checklist-card">
+                        <div class="section-heading-row">
+                            <h2 class="text-lg">Action Checklist</h2>
+                            <span class="badge badge-warning">Next up</span>
+                        </div>
+                        <div class="journey-checklist">
+                            <label class="journey-check-item">
+                                <input type="checkbox" checked>
+                                <span>My voter registration has been checked on the official portal.</span>
+                            </label>
+                            <label class="journey-check-item">
+                                <input type="checkbox" checked>
+                                <span>I have noted my EPIC number or identifying details.</span>
+                            </label>
+                            <label class="journey-check-item">
+                                <input type="checkbox">
+                                <span>I have reviewed candidates and constituency-specific notices.</span>
+                            </label>
+                            <label class="journey-check-item">
+                                <input type="checkbox">
+                                <span>I know my polling booth location and how to reach it.</span>
+                            </label>
+                            <label class="journey-check-item">
+                                <input type="checkbox">
+                                <span>I’m ready with the documents or ID details I may need on polling day.</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <section class="card journey-links-card">
+                        <div class="section-heading-row">
+                            <h2 class="text-lg">Official Actions</h2>
+                            <span class="badge badge-success">Trusted links</span>
+                        </div>
+                        <div class="journey-link-list">
+                            <a class="journey-link-item" href="https://voters.eci.gov.in/en" target="_blank" rel="noopener noreferrer">
+                                <strong>Open Voters' Services Portal</strong>
+                                <span>Register, verify your name, and find voter services.</span>
+                            </a>
+                            <a class="journey-link-item" href="https://www.electoralsearch.eci.gov.in/Voter" target="_blank" rel="noopener noreferrer">
+                                <strong>Search your name in electoral roll</strong>
+                                <span>Check your enrolment and polling details quickly.</span>
+                            </a>
+                            <a class="journey-link-item" href="https://www.eci.gov.in/" target="_blank" rel="noopener noreferrer">
+                                <strong>Visit Election Commission of India</strong>
+                                <span>Read official announcements, guidelines, and updates.</span>
+                            </a>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Sources View -->
+            <div id="sources-view" class="view hidden animate-in">
+                <div class="page-header">
+                    <div>
+                        <h1 class="text-2xl">Official Sources</h1>
+                        <p class="text-slate-500 page-subtitle">Redirect to verified Election Commission and voter-service websites.</p>
+                    </div>
+                    <span class="badge badge-success">Verified official links</span>
+                </div>
+
+                <div class="sources-grid">
+                    <a class="card source-card" href="https://www.eci.gov.in/" target="_blank" rel="noopener noreferrer">
+                        <div class="source-card-top">
+                            <div class="icon-box" style="background-color: var(--primary-100); color: var(--primary-600);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                            </div>
+                            <span class="badge badge-success">ECI</span>
+                        </div>
+                        <h3>Election Commission of India</h3>
+                        <p>The main official website for notifications, press releases, election schedules, and voter guidance.</p>
+                        <span class="source-link-label">www.eci.gov.in</span>
+                    </a>
+
+                    <a class="card source-card" href="https://voters.eci.gov.in/en" target="_blank" rel="noopener noreferrer">
+                        <div class="source-card-top">
+                            <div class="icon-box" style="background-color: var(--teal-100); color: var(--teal-600);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                            </div>
+                            <span class="badge badge-success">Portal</span>
+                        </div>
+                        <h3>Voters' Services Portal</h3>
+                        <p>Use the official voter portal for registration, corrections, address changes, and service requests.</p>
+                        <span class="source-link-label">voters.eci.gov.in/en</span>
+                    </a>
+
+                    <a class="card source-card" href="https://www.electoralsearch.eci.gov.in/Voter" target="_blank" rel="noopener noreferrer">
+                        <div class="source-card-top">
+                            <div class="icon-box" style="background-color: var(--blue-100); color: var(--blue-600);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            </div>
+                            <span class="badge badge-success">Search</span>
+                        </div>
+                        <h3>Electoral Search</h3>
+                        <p>Search your name in the electoral roll and check polling station details using official records.</p>
+                        <span class="source-link-label">electoralsearch.eci.gov.in</span>
+                    </a>
+
+                    <a class="card source-card" href="https://svp.eci.gov.in/" target="_blank" rel="noopener noreferrer">
+                        <div class="source-card-top">
+                            <div class="icon-box" style="background-color: var(--purple-100); color: var(--purple-600);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20"/><path d="m17 5-5-3-5 3v14l5 3 5-3z"/></svg>
+                            </div>
+                            <span class="badge badge-success">Service</span>
+                        </div>
+                        <h3>Service Voter Portal</h3>
+                        <p>Official portal for service voters and related registration workflows handled by ECI.</p>
+                        <span class="source-link-label">svp.eci.gov.in</span>
+                    </a>
+                </div>
+
+                <div class="card sources-note">
+                    <h2 class="text-lg">What you can use these for</h2>
+                    <div class="sources-note-grid">
+                        <div>
+                            <strong>Registration and corrections</strong>
+                            <p>Use the Voters' Services Portal for enrolment, corrections, and address changes.</p>
+                        </div>
+                        <div>
+                            <strong>Polling and roll lookup</strong>
+                            <p>Use Electoral Search to verify your name, constituency, and booth information.</p>
+                        </div>
+                        <div>
+                            <strong>Official updates</strong>
+                            <p>Use the main ECI website for election schedules, notices, and official announcements.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
